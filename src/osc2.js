@@ -5,7 +5,6 @@ Description: Language definition for the ASAM OpenSCENARIO 2 DSL.
 Website: asam.net
 */
 
-import * as regex from "../lib/regex.js";
 
 export default function(hljs) {
   const TEMPORAL_OPERATORS = [
