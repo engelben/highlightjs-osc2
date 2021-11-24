@@ -1,0 +1,29 @@
+scenario elk_init_location:​
+# initialize route and rough location for completeness of overall scenario
+    ego, gvt: vehicle
+    r: route​
+    keep(r.min_lanes == 2)
+    do parallel:
+        ego.assign_pose(road_pose(r.lane1, s=150m, t=0m)) #road_pose not fixed yet #150m as best guess actually depends on power of vehicles etc.
+        gvt.assign_pose(road_pose(r.lane2, s=0m, t=0m)) 
+
+scenario elk_prepare_overtake:
+# initialize speeds and distance between vehicles to create starting situation for overtake
+    ego, gvt: vehicle
+    ego_lane_offset, gvt_lane_offset, overtake_distance, ego_v_lat, ego_speed, gvt_speed, ego_rear_overhang: float
+    keep (ego_speed == 72kph)
+    keep (gvt_speed == 80kph)
+    keep (ego_rear_overhang == 1m)
+    # trying to make calculation from above explicit
+    keep (overtake_distance == ( (gvt_speed - ego_speed) * (ego_lane_offset - gvt_lane_offset) / ego_v_lat) - ego_rear_overhang ) 
+    # overhang should be calculated or taken vehicle parameter (overhang / bb_center_to_rear / _front still needs to be added to entity definition!)
+
+    do parallel:​
+        ego.change_speed(ego_speed)
+        ego.follow_lane(ego_lane_offset) 
+        gvt.change_speed(gvt_speed)
+        gvt.follow_lane(gvt_lane_offset)
+        # can until be used here in parallel?
+        # does distance_along_route exist?
+        until(distance_along_route(gvt, ego) <= 10.11m)
+        # did not re-use the -1m from above as should come out of (here not specified!) vlat etc.
